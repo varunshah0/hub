@@ -59,6 +59,9 @@ export const firebaseConfig = {
   appId: "1:677703680955:web:9014c1e57b3e04e7873a9e"
 };
 
+export const googleClientID =
+  "677703680955-0p0v8l3qvsbsu939taopfqp3n4dvmips.apps.googleusercontent.com";
+
 export const fetchUserData = (successCallback, failureCallback) => {
   return fetch("/api/me", {
     method: "GET",

@@ -1,6 +1,7 @@
 import {
   getCookie,
   firebaseConfig,
+  googleClientID,
   loginWithFirebaseResponse,
   clearCookie
 } from "../utils";
@@ -20,7 +21,8 @@ import {
   getAuth,
   sendSignInLinkToEmail,
   signInWithPopup,
-  GoogleAuthProvider
+  GoogleAuthProvider,
+  signInWithCredential
 } from "firebase/auth";
 import { initFlowbite } from "flowbite";
 import SignUp from "./SignUp";
@@ -167,20 +169,16 @@ const GoogleLogin = props => {
     }
   };
 
-  const loginWithGoogle = e => {
-    e.preventDefault();
-
-    const provider = new GoogleAuthProvider();
-    provider.addScope("https://www.googleapis.com/auth/userinfo.email");
-    provider.addScope("https://www.googleapis.com/auth/userinfo.profile");
-    provider.addScope("openid");
+  const handleCredentialResponse = response => {
+    const idToken = response.credential;
+    const credential = GoogleAuthProvider.credential(idToken);
 
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     auth.useDeviceLanguage();
 
-    signInWithPopup(auth, provider)
+    signInWithCredential(auth, credential)
       .then(result => {
         setCreds(result);
         setLoading(true);
@@ -193,16 +191,41 @@ const GoogleLogin = props => {
       });
   };
 
+  let googleLoginButton;
+
+  let gsiScript;
+  onMount(() => {
+    gsiScript = document.createElement("script");
+    gsiScript.src = "https://accounts.google.com/gsi/client";
+    gsiScript.async = true;
+    document.body.appendChild(gsiScript);
+
+    gsiScript.onload = () => {
+      google.accounts.id.initialize({
+        client_id: googleClientID,
+        callback: handleCredentialResponse
+      });
+      google.accounts.id.renderButton(googleLoginButton, {
+        theme: "outline",
+        size: "large"
+      });
+    };
+  });
+
   return (
     <Switch>
       <Match when={!showSignUp()}>
         <div class="grid gap-3 mb-6">
-          <button
-            class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-            onClick={loginWithGoogle}
-          >
-            Login with Google
-          </button>
+          <div
+            class="g_id_signin"
+            data-type="standard"
+            data-size="large"
+            data-theme="outline"
+            data-text="sign_in_with"
+            data-shape="rectangular"
+            data-logo_alignment="left"
+            ref={googleLoginButton}
+          ></div>
         </div>
         <div
           class="p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300"
