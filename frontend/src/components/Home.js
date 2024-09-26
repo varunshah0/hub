@@ -17,7 +17,7 @@ const Home = () => {
       title: "Tournaments",
       link: "/tournaments",
       description:
-        "View Schedule, Standings etc. of the various India Ultimate Tournaments around you!"
+        "View Schedules, Standings etc. of the various India Ultimate Tournaments around you!"
     },
     {
       title: "Membership",
